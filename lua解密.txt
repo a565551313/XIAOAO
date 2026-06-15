@@ -1,0 +1,127 @@
+function ReadExcel(paths)
+    if paths=="NPC数据" then
+         __gge.print(true,7,string.format("加载%s\t\t\t-->", paths))
+    else 
+        __gge.print(true,7,string.format("加载%s\t\t-->", paths))
+    end
+    
+    path=程序目录.."//data//"..paths..".data"
+    key ={ 45, 66, 38, 55, 23, 254, 9, 165, 90, 19, 41, 45, 201, 58, 55, 37, 254, 185, 
+    165, 169, 19, 171, 38, 1, 99, 9, 86, 0, 74, 1, 215, 88, 64, 56, 22, 56 }
+    local file =  assert(io.open(path, "rb"))
+    local DecryptData ={}
+    local number =0
+    while true do
+        local bytes = file:read(1)
+
+        if not bytes then break end
+        for b in string.gfind(bytes, ".") do
+            num=tonumber(string.byte(b))
+            -- io.write(num,",")
+            local a= number%#key
+            DecryptData[number+1]=bit.bxor(tostring(num),key[a+1]) 
+            number=number+1  
+        end
+    end
+    file:close()
+    local  indexes=0
+    local bufToInt32 = function (dataTable)
+      local num = 0;
+      num = num  + math.floor(dataTable[indexes+4] * (2 ^ 24))
+      num = num  + math.floor(dataTable[indexes+3] * (2 ^ 16))
+      num = num  + math.floor(dataTable[indexes+2] * (2 ^ 8))
+      num = num + dataTable[indexes+1];
+
+        indexes=indexes+4
+      return num;
+    end
+    local  bufToInt16=function(dataTable)
+      local num = 0;
+      num = num + math.floor(dataTable[indexes+2] * (2 ^ 8));
+      num = num + dataTable[indexes+1];
+        indexes=indexes+2
+      return num;
+    end
+    
+    local Row= bufToInt32(DecryptData)
+    local Column=bufToInt32(DecryptData)
+    local ReadASCIIString =function(dataTable)
+            local len = bufToInt16(dataTable);
+            local a={}
+            for i=1,len do 
+              table.insert(a,dataTable[indexes+1])
+              indexes=indexes+1
+            end
+          
+            return  string.char(unpack(a))
+    end
+    local FieldName={} 
+    local GameData={}
+    local GameDataName
+    local funType={}
+
+    for i=1,Row do
+       for j=1,Column do
+         local str = ReadASCIIString(DecryptData);
+         if i==1 then 
+             FieldName[j] = str;
+         elseif i==3 then
+             if str=="number" then
+                   funType[j]=tonumber
+             elseif str=="string" then
+                   funType[j]=tostring
+             elseif str=="array" then
+                    funType[j]=toTablenumber
+            elseif str=="table" then
+                    funType[j]=toTable
+             elseif str=="cjson" then
+                funType[j]=cjson.decode
+             end
+              --print(str)
+         elseif i>3 and str~="" then 
+              if j==1 then
+              GameData[assert(funType[j](str))]={}
+              GameDataName=assert(funType[j](str))
+              else
+                --print(str)
+               GameData[GameDataName][FieldName[j]] = assert(funType[j](str))
+              end
+         end
+       end
+    end
+    __gge.print(false,7,"\t\t\t[")
+    __gge.print(false,10,"成功")
+    __gge.print(false,7,"]\n")
+    __gge.print(false,7,"-------------------------------------------------------------------------\n")
+   return GameData
+end
+function Split(szFullString, szSeparator)
+        local nFindStartIndex = 1
+        local nSplitIndex = 1
+        local nSplitArray = {}
+        while true do
+           local nFindLastIndex = string.find(szFullString, szSeparator, nFindStartIndex)
+           if not nFindLastIndex then
+            nSplitArray[nSplitIndex] = string.sub(szFullString, nFindStartIndex, string.len(szFullString))
+            break
+           end
+           nSplitArray[nSplitIndex] = string.sub(szFullString, nFindStartIndex, nFindLastIndex - 1)
+           nFindStartIndex = nFindLastIndex + string.len(szSeparator)
+           nSplitIndex = nSplitIndex + 1
+        end
+        return nSplitArray
+end
+function toTablenumber(value)
+    value =assert(string.gsub(value,"^[%s{]*(.-)[%s}]*$", "%1"))
+    local a = Split(value,",")
+    local b={}
+    for k,v in pairs(a) do
+        b[k]=assert(tonumber(v))
+    end 
+     return b
+end
+function toTable(value)
+    value =string.gsub(value,"^[%s{]*(.-)[%s}]*$", "%1")
+
+     return Split(value,",")
+end

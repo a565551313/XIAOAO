@@ -1,0 +1,13 @@
+E:\笑傲西游网关\bin\Debug\笑傲西游网关.exe.config
+E:\笑傲西游网关\bin\Debug\笑傲西游网关.exe
+E:\笑傲西游网关\bin\Debug\笑傲西游网关.pdb
+E:\笑傲西游网关\obj\Debug\笑傲西游网关.csprojAssemblyReference.cache
+E:\笑傲西游网关\obj\Debug\笑傲西游网关.Properties.Resources.resources
+E:\笑傲西游网关\obj\Debug\笑傲西游网关.csproj.GenerateResource.cache
+E:\笑傲西游网关\obj\Debug\笑傲西游网关.csproj.CoreCompileInputs.cache
+E:\笑傲西游网关\obj\Debug\笑傲西游网关.exe
+E:\笑傲西游网关\obj\Debug\笑傲西游网关.pdb
+E:\笑傲西游网关\obj\Debug\笑傲西游网关.Form1.resources
+E:\笑傲西游网关\bin\Debug\System.Private.DataContractSerialization.dll
+E:\笑傲西游网关\bin\Debug\System.Reflection.TypeExtensions.dll
+E:\笑傲西游网关\obj\Debug\笑傲西游网关.csproj.CopyComplete
